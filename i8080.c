@@ -20,9 +20,10 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc, FILE *fp)
 {    
 	//code is a pointer to the current opcode which is determined by the offset from the program counter (pc)
     unsigned char *code = &codebuffer[pc];    
-    //represents the the size of the instruction in bytes. Min of 1, if the opcode has data afterward, each byte of data afterward is counted as well
+    //represents the the size of the instruction in bytes. Min of 1, if the opcode has data afterward each byte of data afterward is counted as well
     //size can range from 1 to 3 bytes
     int opbytes = 1;    
+
     fprintf(fp, "%04x ", pc);    
     switch (*code)    
     {    
@@ -316,14 +317,17 @@ int main(int argc, char**argv)
         exit(1);    
     }
 
-    //Get the file size and read it into a memory buffer    
+    //Get the file size (in bytes) and read it into a memory buffer then return to begenning of file   
     fseek(f, 0L, SEEK_END);    
-    int fsize = ftell(f);    
+    int fsize = ftell(f);   
     fseek(f, 0L, SEEK_SET);    
 
+    //allocates the requested memory and returns a pointer to it.
     //pointer = (type) malloc (size in bytes);
     unsigned char *buffer = (unsigned char*) malloc(fsize);    
 
+    //reads data from the given stream into the array pointed to, by ptr.
+    //fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     fread(buffer, fsize, 1, f);    
     fclose(f);    
 
@@ -331,13 +335,11 @@ int main(int argc, char**argv)
     int pc = 0;    
 
     //write output of dissasmbler to a text file
-    FILE *fp;
-	fp = fopen("DisassemblerOutput.txt", "w");
-
+    FILE *fp = fopen("DisassemblerOutput.txt", "w");
     while (pc < fsize)    
     {    
-        pc += Disassemble8080Op(buffer, pc, fp);    
+        pc = pc + Disassemble8080Op(buffer, pc, fp);    
     }    
-
-    return 0;    
+    fclose(fp)
+    return;    
 }
