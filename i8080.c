@@ -1,39 +1,7 @@
 #include <stdio.h>
-
-//Temporary main method while constructing the disassembler 
-int main(int argc, char**argv)    
-{    
-    //open ROM file given as the second arg 
-    FILE *f;
-    f = fopen(argv[1], "rb");    
-    if (f==NULL)    
-    {    
-        printf("error: Could not open the file: %s\n", argv[1]);    
-        exit(1);    
-    }
-
-    //Get the file size and read it into a memory buffer    
-    fseek(f, 0L, SEEK_END);    
-    int fsize = ftell(f);    
-    fseek(f, 0L, SEEK_SET);    
-
-    //pointer = (type) malloc (size in bytes);
-    unsigned char *buffer = (unsigned char*) malloc(fsize);    
-
-    fread(buffer, fsize, 1, f);    
-    fclose(f);    
-
-    //program counter
-    int pc = 0;    
-
-    while (pc < fsize)    
-    {    
-        pc += Disassemble8080Op(buffer, pc);    
-    }    
-
-    return 0;    
-}
-
+#include <string.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 /*    
 *codebuffer is a  pointer to 8080 assembly code    
@@ -332,6 +300,40 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc)
         /* ........ */        
     }    
     printf("\n");    
-
     return opbytes;    
-}    
+}
+
+
+//Temporary main method while constructing the disassembler 
+int main(int argc, char**argv)    
+{    
+
+    //fopen() returns a pointer to a FILE object for the stream associated with the file being opened.
+    FILE *f = fopen(argv[1], "rb");    
+    if (f==NULL)    
+    {    
+        printf("error: Could not open the file: %s\n", argv[1]);    
+        exit(1);    
+    }
+
+    //Get the file size and read it into a memory buffer    
+    fseek(f, 0L, SEEK_END);    
+    int fsize = ftell(f);    
+    fseek(f, 0L, SEEK_SET);    
+
+    //pointer = (type) malloc (size in bytes);
+    unsigned char *buffer = (unsigned char*) malloc(fsize);    
+
+    fread(buffer, fsize, 1, f);    
+    fclose(f);    
+
+    //program counter
+    int pc = 0;    
+
+    while (pc < fsize)    
+    {    
+        pc += Disassemble8080Op(buffer, pc);    
+    }    
+
+    return 0;    
+}
