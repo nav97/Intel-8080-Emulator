@@ -3,14 +3,145 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-/*    
-*codebuffer is a  pointer to 8080 assembly code    
+/*opcode flags
+
+z   - zero
+	  set to 1 when result equals 0
+
+s   - sign
+	  set to 1 when bit 7 (MSB) is set
+
+p   - parity
+	  set whenever answer has even parity
+
+cy  - carry
+	  set to 1 when instruction resulted in carry out
+
+ac  - auxillary carry
+	  indicates when a carry has been generated out of the 
+	  least significant four bits of the accumulator register 
+	  following an instruction. It is primarily used in decimal (BCD) 
+	  arithmetic instructions, it is adding 6 to adjust BCD arithmetic.
+*/
+typedef struct ConditionCodes 
+{    
+    uint8_t z:1;    
+    uint8_t s:1;    
+    uint8_t p:1;    
+    uint8_t cy:1;    
+    uint8_t ac:1;    
+    uint8_t pad:3;    
+}ConditionCodes;
+
+typedef struct State8080 
+{    
+    uint8_t a;    
+    uint8_t b;    
+    uint8_t c;    
+    uint8_t d;    
+    uint8_t e;    
+    uint8_t h;    
+    uint8_t l;    
+    uint16_t sp;    
+    uint16_t pc;    
+    uint8_t  *memory;    
+    struct   ConditionCodes cc;    
+    uint8_t  int_enable;    
+}State8080;
+
+
+void UnimplementedInstruction(State8080* state)
+{
+	//pc will have advanced one, so undo that
+	printf ("Error: Unimplemented instruction\n");
+	state->pc--;
+	Disassemble8080Op(state->memory, state->pc);
+	printf("\n");
+	exit(1);
+}
+
+
+/*
+
+Not a full emulator of the Intel8080 I only emulated the instructions needed by Space Invaders
+I am slowly adding the rest but as I said have only started with those used by space invaders. 
+
+*/
+void Emulate8080Op(State8080* state)    
+{   
+	//opcode is a pointer to the current instruction in memory
+	unsigned char *opcode = &(state->memory[state->pc]);
+
+    switch(*opcode)    
+    {    
+		case 0x00: break;                   //NOP is easy!    
+		case 0x01:                          //LXI   B,word    
+			state->c = opcode[1];    
+			state->b = opcode[2];    
+			state->pc += 2;                     
+			break;    
+		/*....*/
+		case 0x10: break; 
+		/*....*/
+		case 0x20: break;
+		/*....*/
+		case 0x30: break;
+		/*....*/
+		case 0x40: break; 
+		case 0x41: state->b = state->c; break;    //MOV B,C    
+		case 0x42: state->b = state->d; break;    //MOV B,D    
+		case 0x43: state->b = state->e; break;    //MOV B,E 
+		/*....*/
+		case 0x50: break;
+		/*....*/
+		case 0x60: break;
+		/*....*/
+		case 0x70: break;
+		/*....*/
+		case 0x80: 	//ADD B
+
+			break;									
+		
+
+		/*....*/
+		case 0x90: break;
+		/*....*/       
+		case 0xa0: break;
+		/*....*/  
+		case 0xb0: break;
+		/*....*/  
+		case 0xc0: break;
+		/*....*/  
+		case 0xd0: break;
+		/*....*/  
+		case 0xe0: break;
+		/*....*/  
+		case 0xf0: break;
+		/*....*/  
+
+
+		default: UnimplementedInstruction(state); break;
+    }    
+
+
+    //the arrow operator (->) in C is used to access a member of a struct which is referenced by the pointer in question.
+    state->pc+=1;    
+} 
+
+
+
+
+
+
+
+/*   
+
+*codebuffer is a  pointer to 8080 assembly code (pointer to an array?)    
 pc is the current offset into the code
 fp is the text file that the output gets written to
 
 
 return the size of each instruction (in bytes) to increment the program counter accordingly
-returns the size (in bytes) of each instruction to keep track
 
 %02x means print at least 2 digits, prepend it with 0's if there's less.
 %x is for int
@@ -24,7 +155,8 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc, FILE *fp)
     //size can range from 1 to 3 bytes
     int opbytes = 1;    
 
-    fprintf(fp, "%04x ", pc);    
+    fprintf(fp, "%04x ",pc);    
+    //switch(*&codebuffer[pc])
     switch (*code)    
     {    
 		case 0x00: fprintf(fp,"NOP"); break;
@@ -305,6 +437,12 @@ int Disassemble8080Op(unsigned char *codebuffer, int pc, FILE *fp)
 }
 
 
+
+
+
+
+
+
 //Temporary main method while constructing the disassembler 
 int main(int argc, char**argv)    
 {    
@@ -322,11 +460,11 @@ int main(int argc, char**argv)
     int fsize = ftell(f);   
     fseek(f, 0L, SEEK_SET);    
 
-    //allocates the requested memory and returns a pointer to it.
-    //pointer = (type) malloc (size in bytes);
-    unsigned char *buffer = (unsigned char*) malloc(fsize);    
+    //allocates the requested memory (into an array?)and returns a pointer to it.
+    //(type) pointer = (type) malloc(size in bytes);
+    unsigned char *buffer = (unsigned char *) malloc(fsize);    
 
-    //reads data from the given stream into the array pointed to, by ptr.
+    //reads data from the given stream into the array pointed to by ptr.
     //fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     fread(buffer, fsize, 1, f);    
     fclose(f);    
@@ -340,6 +478,6 @@ int main(int argc, char**argv)
     {    
         pc = pc + Disassemble8080Op(buffer, pc, fp);    
     }    
-    fclose(fp)
+    fclose(fp);
     return;    
 }
