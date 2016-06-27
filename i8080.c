@@ -69,8 +69,8 @@ I am slowly adding the rest but as I said have only started with those used by s
 */
 void Emulate8080Op(State8080* state)    
 {   
-	//opcode is a pointer to the current instruction in memory
-	unsigned char *opcode = &(state->memory[state->pc]);
+    //opcode is a pointer to the current instruction in memory
+    unsigned char *opcode = &(state->memory[state->pc]);
 
     switch(*opcode)    
     {    
