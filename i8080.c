@@ -55,8 +55,10 @@ void UnimplementedInstruction(State8080* state)
 	//pc will have advanced one, so undo that
 	printf ("Error: Unimplemented instruction\n");
 	state->pc--;
-	Disassemble8080Op(state->memory, state->pc);
-	printf("\n");
+	FILE *fp = fopen("UnimplementedInstructions.txt", "w");
+	Disassemble8080Op(state->memory, state->pc, fp);
+	fprintf(fp,"\n");
+	fclose(fp)
 	exit(1);
 }
 
