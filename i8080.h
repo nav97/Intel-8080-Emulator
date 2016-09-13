@@ -49,8 +49,8 @@ sp  - Stack Pointer
       register that stores the last program request in a stack
 
 pc  - Program Counter
-      register that holds the address of the instruction 
-      being executed at the time
+      register that holds the address of the next instruction 
+
 
 memory - Pointer
          pointer to address in memory of the Intel 8080. 
