@@ -23,15 +23,15 @@ ac  - auxiliary carry
 	  following an instruction. It is primarily used in decimal (BCD) 
 	  arithmetic instructions, it is adding 6 to adjust BCD arithmetic.
 */
-typedef struct ConditionCodes 
-{    
-    uint8_t z:1;    
-    uint8_t s:1;    
-    uint8_t p:1;    
-    uint8_t cy:1;    
-    uint8_t ac:1;    
-    uint8_t pad:3;    
-}ConditionCodes;
+typedef struct ConditionCodes
+{
+    uint8_t z : 1;
+    uint8_t s : 1;
+    uint8_t p : 1;
+    uint8_t cy : 1;
+    uint8_t ac : 1;
+    uint8_t pad : 3;
+} ConditionCodes;
 
 /*Registers
 a   - Accumulator
@@ -55,35 +55,35 @@ pc  - Program Counter
 memory - Pointer
          pointer to address in memory of the Intel 8080. 
 */
-typedef struct State8080 
-{    
-    uint8_t a;    
-    uint8_t b;    
-    uint8_t c;    
-    uint8_t d;    
-    uint8_t e;    
-    uint8_t h;    
-    uint8_t l;    
-    uint16_t sp;    
-    uint16_t pc;    
-    uint8_t  *memory;    
-    struct   ConditionCodes cc;    
-    uint8_t  int_enable;    
-}State8080;
+typedef struct State8080
+{
+    uint8_t a;
+    uint8_t b;
+    uint8_t c;
+    uint8_t d;
+    uint8_t e;
+    uint8_t h;
+    uint8_t l;
+    uint16_t sp;
+    uint16_t pc;
+    uint8_t *memory;
+    struct ConditionCodes cc;
+    uint8_t int_enable;
+} State8080;
 
 //Emulate Intel 8080 CPU
 //Returns number of cycles for each executed instruction
-int Emulate(State8080* state, bool printTrace);
+int Emulate(State8080 *state, bool printTrace);
 
 //Prints out current instruction being pointed to by program counter (PC)
 int Disassemble8080(unsigned char *codebuffer, int pc);
 
-//Facilitates Interrupts 
-void GenInterrupt(State8080* state, int interrupt_num);
+//Facilitates Interrupts
+void GenInterrupt(State8080 *state, int interrupt_num);
 
 //Read desired ROM file into Memory at specified offset
-void ReadFileIntoMemory(State8080* state, char* filename, uint32_t offset);
+void ReadFileIntoMemory(State8080 *state, char *filename, uint32_t offset);
 
 //Allocate CPU struct
 //Returns pointer to allocated Intel 8080 CPU object
-State8080* Init8080(void);
+State8080 *Init8080(void);
